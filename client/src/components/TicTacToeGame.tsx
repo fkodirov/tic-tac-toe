@@ -7,9 +7,27 @@ interface TicTacToeGameProps {
 
 const TicTacToeGame: React.FC<TicTacToeGameProps> = ({ sessionId }) => {
   const [socket, setSocket] = useState<Socket | null>(null);
+  const [board, setBoard] = useState<string[]>(Array(9).fill(""));
+  const [currentMove, setCurrentMove] = useState<"X" | "O" | "">("");
+  const [player, setPlayer] = useState<"X" | "O" | "">("");
+  const [winner, setWinner] = useState<string | null>(null);
 
   useEffect(() => {
     const newSocket = io("http://localhost:3001");
+
+    newSocket.emit("join", sessionId);
+
+    newSocket.on("updateBoard", (updatedBoard: string[]) => {
+      setBoard(updatedBoard);
+    });
+
+    newSocket.on("player", (player: "X" | "O") => {
+      setPlayer(player);
+    });
+
+    newSocket.on("currentMove", (currentMove: "X" | "O") => {
+      setCurrentMove(currentMove);
+    });
 
     setSocket(newSocket);
 
@@ -20,7 +38,21 @@ const TicTacToeGame: React.FC<TicTacToeGameProps> = ({ sessionId }) => {
 
   return (
     <div>
-      <h2>Tic Tac Toe Game - Session: {sessionId}</h2>
+      <h2>
+        Session: {sessionId} - Player {player}
+      </h2>
+      {winner ? (
+        <div>Winner: {winner}</div>
+      ) : (
+        <div>Current Move: {currentMove}</div>
+      )}
+      <div className="board">
+        {board.map((cell, index) => (
+          <div key={index} className="cell">
+            {cell}
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

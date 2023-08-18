@@ -1,0 +1,14 @@
+.cell{
+  min-width:50px;
+  min-width: 50px;
+  border: 1px solid black;
+  box-sizing: border-box;
+}
+.board{
+  display: flex;
+  flex-wrap: wrap;
+  height: 152px;
+  width: 152px;
+  border: 1px solid black;
+  box-sizing: border-box
+}

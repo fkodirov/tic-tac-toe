@@ -15,6 +15,26 @@ const activeSessions = {};
 
 io.on("connection", (socket) => {
   console.log("A user connected");
+  socket.on("join", (sessionId) => {
+    socket.join(sessionId);
+    const id = socket.id;
+    if (!activeSessions[sessionId]) {
+      activeSessions[sessionId] = {
+        board: Array(9).fill(""),
+        players: [id],
+        currentMove: "X",
+      };
+    } else {
+      activeSessions[sessionId].players.push(id);
+    }
+    console.log(activeSessions);
+    socket.emit("updateBoard", activeSessions[sessionId].board);
+    socket.emit("currentMove", (activeSessions[sessionId].currentMove = "X"));
+    socket.emit(
+      "player",
+      activeSessions[sessionId].players.length == 2 ? "O" : "X"
+    );
+  });
 
   socket.on("disconnect", () => {
     console.log("A user disconnected");
