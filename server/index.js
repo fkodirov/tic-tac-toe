@@ -36,6 +36,19 @@ io.on("connection", (socket) => {
     );
   });
 
+  socket.on("makeMove", ({ sessionId, newBoard, currentMove }) => {
+    activeSessions[sessionId].board = newBoard;
+    activeSessions[sessionId].currentMove = currentMove === "X" ? "O" : "X";
+    console.log(activeSessions[sessionId].currentMove);
+    io.to(sessionId).emit("updateBoard", activeSessions[sessionId].board);
+    io.to(sessionId).emit("currentMove", activeSessions[sessionId].currentMove);
+
+    const result = checkGameOver(activeSessions[sessionId].board);
+    if (result) {
+      io.to(sessionId).emit("gameOver", result);
+    }
+  });
+
   socket.on("disconnect", () => {
     console.log("A user disconnected");
   });

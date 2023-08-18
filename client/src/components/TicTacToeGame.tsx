@@ -29,12 +29,24 @@ const TicTacToeGame: React.FC<TicTacToeGameProps> = ({ sessionId }) => {
       setCurrentMove(currentMove);
     });
 
+    newSocket.on("gameOver", (result: string) => {
+      setWinner(result);
+    });
+
     setSocket(newSocket);
 
     return () => {
       newSocket.disconnect();
     };
   }, [sessionId]);
+
+  const handleCellClick = (index: number) => {
+    if (socket && !board[index] && currentMove === player) {
+      const newBoard = [...board];
+      newBoard[index] = player;
+      socket.emit("makeMove", { sessionId, newBoard, currentMove });
+    }
+  };
 
   return (
     <div>
@@ -48,7 +60,11 @@ const TicTacToeGame: React.FC<TicTacToeGameProps> = ({ sessionId }) => {
       )}
       <div className="board">
         {board.map((cell, index) => (
-          <div key={index} className="cell">
+          <div
+            key={index}
+            className="cell"
+            onClick={() => handleCellClick(index)}
+          >
             {cell}
           </div>
         ))}
