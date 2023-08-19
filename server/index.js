@@ -34,6 +34,7 @@ io.on("connection", (socket) => {
         players: [id],
         currentMove: "X",
         gameStatus: "created",
+        playAgain: [],
       };
     } else {
       activeSessions[sessionId].players.push(id);
@@ -83,9 +84,37 @@ io.on("connection", (socket) => {
     const result = checkGameOver(activeSessions[sessionId].board);
     if (result) {
       io.to(sessionId).emit("gameOver", result);
+      activeSessions[sessionId].currentMove = "";
+      activeSessions[sessionId].gameStatus = "finished";
+      io.to(sessionId).emit(
+        "currentMove",
+        activeSessions[sessionId].currentMove
+      );
+      // io.to(sessionId).emit("gameOver", activeSessions[sessionId].);
     }
   });
 
+  socket.on("playAgain", ({ sessionId }) => {
+    const playAgain = activeSessions[sessionId].playAgain;
+    playAgain.push("true");
+    if (playAgain.length == 2) {
+      activeSessions[sessionId] = {
+        board: Array(9).fill(""),
+        currentMove: "X",
+        gameStatus: "created",
+        playAgain: [],
+      };
+      io.to(sessionId).emit("updateBoard", activeSessions[sessionId].board);
+      io.to(sessionId).emit(
+        "currentMove",
+        (activeSessions[sessionId].currentMove = "X")
+      );
+      io.to(sessionId).emit("waiting", false);
+      io.to(sessionId).emit("gameOver", "");
+    } else {
+      socket.emit("waiting", true);
+    }
+  });
   socket.on("disconnect", () => {
     console.log("A user disconnected");
   });

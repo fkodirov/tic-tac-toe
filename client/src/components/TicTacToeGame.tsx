@@ -22,6 +22,10 @@ const TicTacToeGame: React.FC = observer(() => {
       Store.socket.on("gameOver", (result: string) => {
         Store.setWinner(result);
       });
+
+      Store.socket.on("waiting", (waiting: boolean) => {
+        Store.setWaiting(waiting);
+      });
     }
   }, []);
 
@@ -41,14 +45,25 @@ const TicTacToeGame: React.FC = observer(() => {
       });
     }
   };
+  const handlePlayAgain = () => {
+    Store.socket?.emit("playAgain", {
+      sessionId: Store.sessionId,
+      // player: Store.player,
+    });
+  };
 
   return (
     <div>
       <h2>
         Session: {Store.sessionId} - Player {Store.player}
       </h2>
+      <button type="button" onClick={handlePlayAgain}>
+        {Store.waiting ? "Waiting" : "Play again"}
+      </button>
       {Store.winner ? (
-        <div>Winner: {Store.winner}</div>
+        <div>
+          {Store.winner.includes("draw") ? `Draw` : `Winner:${Store.winner}`}
+        </div>
       ) : (
         <div>Current Move: {Store.currentMove}</div>
       )}

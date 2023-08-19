@@ -6,17 +6,16 @@ const SessionJoin: React.FC = observer(() => {
   const sessionIdRef = useRef<HTMLInputElement | null>(null);
   useEffect(() => {
     Store.socket?.on("gameStatus", (status: string) => {
-      console.log("join");
       if (status == "created") {
         if (sessionIdRef.current)
           Store.setSessionId(sessionIdRef.current.value);
-      } else alert("Session ID not found! Please created session.");
+      } else if (status != "finished")
+        alert("Session ID not found! Please created session.");
     });
   }, [Store.socket]);
 
   const handleJoinSession = () => {
     if (sessionIdRef.current && sessionIdRef.current.value.trim() !== "") {
-      // Store.setSessionId(sessionIdRef.current.value);
       Store.socket?.emit("gameStatus", sessionIdRef.current.value);
     }
   };
