@@ -32,7 +32,7 @@ io.on("connection", (socket) => {
       activeSessions[sessionId] = {
         board: Array(9).fill(""),
         players: [id],
-        currentMove: "X",
+        currentMove: "",
         gameStatus: "created",
         playAgain: [],
       };
@@ -41,11 +41,12 @@ io.on("connection", (socket) => {
     }
     console.log(activeSessions);
     socket.emit("updateBoard", activeSessions[sessionId].board);
-    socket.emit("currentMove", (activeSessions[sessionId].currentMove = "X"));
-    socket.emit(
-      "player",
-      activeSessions[sessionId].players.length == 2 ? "O" : "X"
+    const countPlayers = activeSessions[sessionId].players.length;
+    io.to(sessionId).emit(
+      "currentMove",
+      countPlayers == 2 ? (Math.floor(Math.random() * 2) ? "X" : "O") : ""
     );
+    socket.emit("player", countPlayers == 2 ? "O" : "X");
   });
 
   const checkGameOver = (board) => {

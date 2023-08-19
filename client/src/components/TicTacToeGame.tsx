@@ -57,7 +57,7 @@ const TicTacToeGame: React.FC = observer(() => {
       <h2>
         Session: {Store.sessionId} - Player {Store.player}
       </h2>
-      <button type="button" onClick={handlePlayAgain}>
+      <button type="button" onClick={handlePlayAgain} disabled={Store.waiting}>
         {Store.waiting ? "Waiting" : "Play again"}
       </button>
       {Store.winner ? (
@@ -65,7 +65,11 @@ const TicTacToeGame: React.FC = observer(() => {
           {Store.winner.includes("draw") ? `Draw` : `Winner:${Store.winner}`}
         </div>
       ) : (
-        <div>Current Move: {Store.currentMove}</div>
+        <div>
+          {Store.currentMove
+            ? `Current Move: ${Store.currentMove}`
+            : `Waiting second player`}
+        </div>
       )}
       <div className="board">
         {Store.board.map((cell, index) => (
