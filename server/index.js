@@ -15,6 +15,16 @@ const activeSessions = {};
 
 io.on("connection", (socket) => {
   console.log("A user connected");
+  socket.on("create", (sessionId) => {
+    console.log(sessionId);
+    if (!activeSessions[sessionId]) socket.emit("create", "created");
+    else socket.emit("create", "");
+  });
+  socket.on("gameStatus", (sessionId) => {
+    console.log(sessionId);
+    if (activeSessions[sessionId]) socket.emit("gameStatus", "created");
+    else socket.emit("gameStatus", "not created");
+  });
   socket.on("join", (sessionId) => {
     socket.join(sessionId);
     const id = socket.id;
@@ -23,6 +33,7 @@ io.on("connection", (socket) => {
         board: Array(9).fill(""),
         players: [id],
         currentMove: "X",
+        gameStatus: "created",
       };
     } else {
       activeSessions[sessionId].players.push(id);

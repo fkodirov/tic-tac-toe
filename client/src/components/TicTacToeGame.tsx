@@ -1,35 +1,28 @@
 import React, { useEffect } from "react";
-import { io } from "socket.io-client";
 import { observer } from "mobx-react-lite";
 import Store from "../store/store";
 
 const TicTacToeGame: React.FC = observer(() => {
   useEffect(() => {
-    const newSocket = io("http://localhost:3001");
+    if (Store.socket) {
+      Store.socket.emit("join", Store.sessionId);
 
-    newSocket.emit("join", Store.sessionId);
+      Store.socket.on("updateBoard", (updatedBoard: string[]) => {
+        Store.setBoard(updatedBoard);
+      });
 
-    newSocket.on("updateBoard", (updatedBoard: string[]) => {
-      Store.setBoard(updatedBoard);
-    });
+      Store.socket.on("player", (player: "X" | "O") => {
+        Store.setPlayer(player);
+      });
 
-    newSocket.on("player", (player: "X" | "O") => {
-      Store.setPlayer(player);
-    });
+      Store.socket.on("currentMove", (currentMove: "X" | "O") => {
+        Store.setCurrentMove(currentMove);
+      });
 
-    newSocket.on("currentMove", (currentMove: "X" | "O") => {
-      Store.setCurrentMove(currentMove);
-    });
-
-    newSocket.on("gameOver", (result: string) => {
-      Store.setWinner(result);
-    });
-
-    Store.setSocket(newSocket);
-
-    return () => {
-      newSocket.disconnect();
-    };
+      Store.socket.on("gameOver", (result: string) => {
+        Store.setWinner(result);
+      });
+    }
   }, []);
 
   const handleCellClick = (index: number) => {
