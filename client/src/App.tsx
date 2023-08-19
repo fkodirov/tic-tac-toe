@@ -1,32 +1,24 @@
-import React, { useState } from "react";
+import React from "react";
+import { observer } from "mobx-react-lite";
 import SessionCreation from "./components/SessionCreation";
 import SessionJoin from "./components/SessionJoin";
 import TicTacToeGame from "./components/TicTacToeGame";
+import Store from "./store/store";
 
-const App: React.FC = () => {
-  const [sessionId, setSessionId] = useState<string | null>(null);
-
-  const createSession = (sessionId: string) => {
-    setSessionId(sessionId);
-  };
-
-  const joinSession = (sessionId: string) => {
-    setSessionId(sessionId);
-  };
-
+const App: React.FC = observer(() => {
   return (
     <div className="App">
       <h1>Tic Tac Toe</h1>
-      {!sessionId ? (
+      {!Store.sessionId ? (
         <>
-          <SessionCreation createSession={createSession} />
-          <SessionJoin joinSession={joinSession} />
+          <SessionCreation />
+          <SessionJoin />
         </>
       ) : (
-        <TicTacToeGame sessionId={sessionId} />
+        <TicTacToeGame />
       )}
     </div>
   );
-};
+});
 
 export default App;

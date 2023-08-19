@@ -1,68 +1,69 @@
-import React, { useState, useEffect } from "react";
-import { io, Socket } from "socket.io-client";
+import React, { useEffect } from "react";
+import { io } from "socket.io-client";
+import { observer } from "mobx-react-lite";
+import Store from "../store/store";
 
-interface TicTacToeGameProps {
-  sessionId: string;
-}
-
-const TicTacToeGame: React.FC<TicTacToeGameProps> = ({ sessionId }) => {
-  const [socket, setSocket] = useState<Socket | null>(null);
-  const [board, setBoard] = useState<string[]>(Array(9).fill(""));
-  const [currentMove, setCurrentMove] = useState<"X" | "O" | "">("");
-  const [player, setPlayer] = useState<"X" | "O" | "">("");
-  const [winner, setWinner] = useState<string | null>(null);
-
+const TicTacToeGame: React.FC = observer(() => {
   useEffect(() => {
     const newSocket = io("http://localhost:3001");
 
-    newSocket.emit("join", sessionId);
+    newSocket.emit("join", Store.sessionId);
 
     newSocket.on("updateBoard", (updatedBoard: string[]) => {
-      setBoard(updatedBoard);
+      Store.setBoard(updatedBoard);
     });
 
     newSocket.on("player", (player: "X" | "O") => {
-      setPlayer(player);
+      Store.setPlayer(player);
     });
 
     newSocket.on("currentMove", (currentMove: "X" | "O") => {
-      setCurrentMove(currentMove);
+      Store.setCurrentMove(currentMove);
     });
 
     newSocket.on("gameOver", (result: string) => {
-      setWinner(result);
+      Store.setWinner(result);
     });
 
-    setSocket(newSocket);
+    Store.setSocket(newSocket);
 
     return () => {
       newSocket.disconnect();
     };
-  }, [sessionId]);
+  }, []);
 
   const handleCellClick = (index: number) => {
-    if (socket && !board[index] && currentMove === player) {
-      const newBoard = [...board];
-      newBoard[index] = player;
-      socket.emit("makeMove", { sessionId, newBoard, currentMove });
+    if (
+      Store.socket &&
+      !Store.board[index] &&
+      Store.currentMove === Store.player
+    ) {
+      const newBoard = [...Store.board];
+      newBoard[index] = Store.player;
+      Store.board = newBoard;
+      Store.socket.emit("makeMove", {
+        sessionId: Store.sessionId,
+        newBoard,
+        currentMove: Store.currentMove,
+      });
     }
   };
 
   return (
     <div>
       <h2>
-        Session: {sessionId} - Player {player}
+        Session: {Store.sessionId} - Player {Store.player}
       </h2>
-      {winner ? (
-        <div>Winner: {winner}</div>
+      {Store.winner ? (
+        <div>Winner: {Store.winner}</div>
       ) : (
-        <div>Current Move: {currentMove}</div>
+        <div>Current Move: {Store.currentMove}</div>
       )}
       <div className="board">
-        {board.map((cell, index) => (
+        {Store.board.map((cell, index) => (
           <div
             key={index}
-            className="cell"
+            className="cell d-flex justify-content-center align-items-center"
             onClick={() => handleCellClick(index)}
           >
             {cell}
@@ -71,6 +72,6 @@ const TicTacToeGame: React.FC<TicTacToeGameProps> = ({ sessionId }) => {
       </div>
     </div>
   );
-};
+});
 
 export default TicTacToeGame;

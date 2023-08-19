@@ -36,6 +36,32 @@ io.on("connection", (socket) => {
     );
   });
 
+  const checkGameOver = (board) => {
+    const winningCombos = [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+      [0, 4, 8],
+      [2, 4, 6],
+    ];
+
+    for (const combo of winningCombos) {
+      const [a, b, c] = combo;
+      if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+        return board[a];
+      }
+    }
+
+    if (board.every((cell) => cell !== "")) {
+      return "draw";
+    }
+
+    return null;
+  };
+
   socket.on("makeMove", ({ sessionId, newBoard, currentMove }) => {
     activeSessions[sessionId].board = newBoard;
     activeSessions[sessionId].currentMove = currentMove === "X" ? "O" : "X";

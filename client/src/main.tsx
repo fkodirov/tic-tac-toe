@@ -1,11 +1,16 @@
 import "bootstrap/dist/css/bootstrap.min.css";
-import React from "react";
+import Store from "./store/store.ts";
 import ReactDOM from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
+import { createContext } from "react";
 
-ReactDOM.createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
+export const Context = createContext({ Store });
+
+const root = ReactDOM.createRoot(document.getElementById("root")!);
+
+root.render(
+  <Context.Provider value={{ Store }}>
     <App />
-  </React.StrictMode>
+  </Context.Provider>
 );

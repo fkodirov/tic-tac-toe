@@ -1,27 +1,22 @@
-import React, { useState } from "react";
+import { useRef } from "react";
+import { observer } from "mobx-react-lite";
+import Store from "../store/store";
 
-interface SessionJoinProps {
-  joinSession: (sessionId: string) => void;
-}
-
-const SessionJoin: React.FC<SessionJoinProps> = ({ joinSession }) => {
-  const [sessionId, setSessionId] = useState("");
-
+const SessionJoin: React.FC = observer(() => {
+  const sessionIdRef = useRef<HTMLInputElement | null>(null);
   const handleJoinSession = () => {
-    joinSession(sessionId);
+    if (sessionIdRef.current && sessionIdRef.current.value.trim() !== "") {
+      Store.setSessionId(sessionIdRef.current.value);
+    }
   };
 
   return (
     <div>
       <h2>Join Session</h2>
-      <input
-        type="text"
-        value={sessionId}
-        onChange={(e) => setSessionId(e.target.value)}
-      />
+      <input type="text" ref={sessionIdRef} />
       <button onClick={handleJoinSession}>Join</button>
     </div>
   );
-};
+});
 
 export default SessionJoin;

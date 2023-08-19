@@ -1,6 +1,6 @@
 .cell{
   min-width:50px;
-  min-width: 50px;
+  min-height: 50px;
   border: 1px solid black;
   box-sizing: border-box;
 }

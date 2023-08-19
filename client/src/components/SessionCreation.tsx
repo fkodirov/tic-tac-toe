@@ -1,27 +1,22 @@
-import React, { useState } from "react";
+import { observer } from "mobx-react-lite";
+import Store from "../store/store";
+import { useRef } from "react";
 
-interface SessionCreationProps {
-  createSession: (sessionId: string) => void;
-}
-
-const SessionCreation: React.FC<SessionCreationProps> = ({ createSession }) => {
-  const [sessionId, setSessionId] = useState("");
-
+const SessionCreation: React.FC = observer(() => {
+  const sessionIdRef = useRef<HTMLInputElement | null>(null);
   const handleCreateSession = () => {
-    createSession(sessionId);
+    if (sessionIdRef.current && sessionIdRef.current.value.trim() !== "") {
+      Store.setSessionId(sessionIdRef.current.value);
+    }
   };
 
   return (
     <div>
       <h2>Create Session</h2>
-      <input
-        type="text"
-        value={sessionId}
-        onChange={(e) => setSessionId(e.target.value)}
-      />
+      <input type="text" ref={sessionIdRef} />
       <button onClick={handleCreateSession}>Create</button>
     </div>
   );
-};
+});
 
 export default SessionCreation;
