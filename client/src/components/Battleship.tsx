@@ -3,15 +3,13 @@ import io from "socket.io-client";
 import Board from "./Board";
 import Store from "../store/store";
 
-// const socket = io("http://localhost:4000");
-
 const Battleship: React.FC = () => {
   const [playersNames, setPlayersNames] = useState<string[]>([]);
   const [playerBoard, setPlayerBoard] = useState<string[][]>([]);
   const [enemyBoard, setEnemyBoard] = useState<string[][]>([]);
   const [isConnected, setIsConnected] = useState<boolean>(false);
   const [placingShip, setPlacingShip] = useState<boolean>(true);
-
+  const fullBoard = [1, 1, 1, 1, 2, 2, 2, 3, 3, 4];
   useEffect(() => {
     const newBoardPlayer: string[][] = Array.from({ length: 10 }, () =>
       Array(10).fill("")
@@ -133,7 +131,34 @@ const Battleship: React.FC = () => {
       }
     }
   };
+  const ShipsEqual = (array1, array2) => {
+    if (array1.length !== array2.length) {
+      return false;
+    }
 
+    const sortedArray1 = array1.slice().sort();
+    const sortedArray2 = array2.slice().sort();
+
+    for (let i = 0; i < sortedArray1.length; i++) {
+      if (sortedArray1[i] !== sortedArray2[i]) {
+        return false;
+      }
+    }
+
+    return true;
+  };
+  const checkCorrect = () => {
+    const horizontalLengths = getHorizontalShip().map((e) => e[1] - e[0] + 1);
+    const verticalLengths = getVerticalShip().map((e) => e[1] - e[0] + 1);
+    const shipsOnBoard = [
+      ...horizontalLengths,
+      ...verticalLengths,
+      ...Array(getSingleShip().length).fill(1),
+    ];
+    console.log(ShipsEqual(shipsOnBoard, fullBoard));
+    if (ShipsEqual(shipsOnBoard, fullBoard)) return true;
+    else false;
+  };
   return (
     <>
       <h2>SessionID: {Store.sessionId}</h2>
@@ -158,9 +183,7 @@ const Battleship: React.FC = () => {
             <p>Waiting for opponent...</p>
           )}
         </div>
-        <button onClick={getHorizontalShip}>Get Horizontal</button>
-        <button onClick={getVerticalShip}>Get Vertical</button>
-        <button onClick={getSingleShip}>Get Vertical</button>
+        <button onClick={checkCorrect}>check</button>
         <button onClick={() => setPlacingShip(false)}>Start Game</button>
       </div>
     </>
