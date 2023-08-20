@@ -121,12 +121,43 @@ const Battleship: React.FC = () => {
     }
     return singleShip;
   };
+  const checkDiagonal = (board, rowIndex, cellIndex) => {
+    const diagonal = [
+      [-1, -1],
+      [-1, 1],
+      [1, -1],
+      [1, 1],
+    ];
+
+    for (const [rowOffset, cellOffset] of diagonal) {
+      const newRow = rowIndex + rowOffset;
+      const newCell = cellIndex + cellOffset;
+
+      if (
+        newRow >= 0 &&
+        newRow < board.length &&
+        newCell >= 0 &&
+        newCell < board[newRow].length &&
+        board[newRow][newCell] === "S"
+      ) {
+        return true;
+      }
+    }
+
+    return false;
+  };
 
   const handleCellClick = (rowIndex: number, cellIndex: number) => {
     if (placingShip) {
       const newBoard = [...playerBoard];
-      if (playerBoard[rowIndex][cellIndex] != "S") {
+      if (
+        playerBoard[rowIndex][cellIndex] != "S" &&
+        !checkDiagonal(playerBoard, rowIndex, cellIndex)
+      ) {
         newBoard[rowIndex][cellIndex] = "S";
+        setPlayerBoard(newBoard);
+      } else {
+        newBoard[rowIndex][cellIndex] = "";
         setPlayerBoard(newBoard);
       }
     }
