@@ -5,7 +5,7 @@ import Store from "../store/store";
 const TicTacToeGame: React.FC = observer(() => {
   useEffect(() => {
     if (Store.socket) {
-      Store.socket.emit("join", Store.sessionId);
+      Store.socket.emit("join", Store.sessionId, Store.game);
 
       Store.socket.on("updateBoard", (updatedBoard: string[]) => {
         Store.setBoard(updatedBoard);
@@ -42,13 +42,14 @@ const TicTacToeGame: React.FC = observer(() => {
         sessionId: Store.sessionId,
         newBoard,
         currentMove: Store.currentMove,
+        game: Store.game,
       });
     }
   };
   const handlePlayAgain = () => {
     Store.socket?.emit("playAgain", {
       sessionId: Store.sessionId,
-      // player: Store.player,
+      game: Store.game,
     });
   };
 

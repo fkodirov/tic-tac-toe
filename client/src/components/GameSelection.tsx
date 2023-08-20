@@ -10,7 +10,8 @@ const GameSelection: React.FC = observer(() => {
   return (
     <div>
       <h2>Select Game Type</h2>
-      <button onClick={() => handleGameSelect("ticTacToe")}>Tic Tac Toe</button>
+      <button onClick={() => handleGameSelect("TicTacToe")}>Tic Tac Toe</button>
+      <button onClick={() => handleGameSelect("Battleship")}>Battleship</button>
     </div>
   );
 });

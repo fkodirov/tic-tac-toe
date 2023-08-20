@@ -16,7 +16,7 @@ const SessionJoin: React.FC = observer(() => {
 
   const handleJoinSession = () => {
     if (sessionIdRef.current && sessionIdRef.current.value.trim() !== "") {
-      Store.socket?.emit("gameStatus", sessionIdRef.current.value);
+      Store.socket?.emit("gameStatus", sessionIdRef.current.value, Store.game);
     }
   };
 

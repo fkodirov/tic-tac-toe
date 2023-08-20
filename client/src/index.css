@@ -12,3 +12,30 @@
   border: 1px solid black;
   box-sizing: border-box
 }
+
+
+
+.game-battle {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px;
+}
+
+.board-battle {
+  border: 1px solid #ccc;
+  width: 300px;
+  height: 300px;
+}
+
+.row-battle {
+  display: flex;
+}
+
+.cell-battle {
+  border: 1px solid #ccc;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

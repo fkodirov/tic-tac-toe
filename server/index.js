@@ -11,42 +11,61 @@ const io = socketIo(server, {
   },
 });
 
-const activeSessions = {};
+const activeSessions = { TicTacToe: {}, Battleship: {} };
 
 io.on("connection", (socket) => {
   console.log("A user connected");
-  socket.on("create", (sessionId) => {
-    console.log(sessionId);
-    if (!activeSessions[sessionId]) socket.emit("create", "created");
+  socket.on("create", (sessionId, game) => {
+    if (!activeSessions[game][sessionId]) socket.emit("create", "created");
     else socket.emit("create", "");
   });
-  socket.on("gameStatus", (sessionId) => {
-    console.log(sessionId);
-    if (activeSessions[sessionId]) socket.emit("gameStatus", "created");
+  socket.on("gameStatus", (sessionId, game) => {
+    if (activeSessions[game][sessionId]) socket.emit("gameStatus", "created");
     else socket.emit("gameStatus", "not created");
   });
-  socket.on("join", (sessionId) => {
+  socket.on("join", (sessionId, game, playerName) => {
+    console.log(playerName);
     socket.join(sessionId);
     const id = socket.id;
-    if (!activeSessions[sessionId]) {
-      activeSessions[sessionId] = {
-        board: Array(9).fill(""),
-        players: [id],
-        currentMove: "",
-        gameStatus: "created",
-        playAgain: [],
-      };
-    } else {
-      activeSessions[sessionId].players.push(id);
+    if (game == "TicTacToe") {
+      if (!activeSessions[game][sessionId]) {
+        activeSessions[game][sessionId] = {
+          board: Array(9).fill(""),
+          players: [id],
+          currentMove: "",
+          gameStatus: "created",
+          playAgain: [],
+        };
+      } else {
+        activeSessions[game][sessionId].players.push(id);
+      }
+      socket.emit("updateBoard", activeSessions[game][sessionId].board);
+      const countPlayers = activeSessions[game][sessionId].players.length;
+      io.to(sessionId).emit(
+        "currentMove",
+        countPlayers == 2 ? (Math.floor(Math.random() * 2) ? "X" : "O") : ""
+      );
+      socket.emit("player", countPlayers == 2 ? "O" : "X");
+    } else if (game == "Battleship") {
+      if (!activeSessions[game][sessionId]) {
+        activeSessions[game][sessionId] = {
+          board: Array.from({ length: 10 }, () => Array(10).fill("")),
+          players: [id],
+          currentMove: "",
+          gameStatus: "created",
+          playAgain: [],
+          playersNames: [playerName],
+        };
+      } else {
+        activeSessions[game][sessionId].players.push(id);
+        activeSessions[game][sessionId].playersNames.push(playerName);
+        io.to(sessionId).emit(
+          "connected",
+          activeSessions[game][sessionId].playersNames
+        );
+      }
+      // console.log("Battleship");
     }
-    console.log(activeSessions);
-    socket.emit("updateBoard", activeSessions[sessionId].board);
-    const countPlayers = activeSessions[sessionId].players.length;
-    io.to(sessionId).emit(
-      "currentMove",
-      countPlayers == 2 ? (Math.floor(Math.random() * 2) ? "X" : "O") : ""
-    );
-    socket.emit("player", countPlayers == 2 ? "O" : "X");
   });
 
   const checkGameOver = (board) => {
@@ -75,39 +94,47 @@ io.on("connection", (socket) => {
     return null;
   };
 
-  socket.on("makeMove", ({ sessionId, newBoard, currentMove }) => {
-    activeSessions[sessionId].board = newBoard;
-    activeSessions[sessionId].currentMove = currentMove === "X" ? "O" : "X";
-    console.log(activeSessions[sessionId].currentMove);
-    io.to(sessionId).emit("updateBoard", activeSessions[sessionId].board);
-    io.to(sessionId).emit("currentMove", activeSessions[sessionId].currentMove);
+  socket.on("makeMove", ({ sessionId, newBoard, currentMove, game }) => {
+    activeSessions[game][sessionId].board = newBoard;
+    activeSessions[game][sessionId].currentMove =
+      currentMove === "X" ? "O" : "X";
+    io.to(sessionId).emit("updateBoard", activeSessions[game][sessionId].board);
+    io.to(sessionId).emit(
+      "currentMove",
+      activeSessions[game][sessionId].currentMove
+    );
 
-    const result = checkGameOver(activeSessions[sessionId].board);
+    const result = checkGameOver(activeSessions[game][sessionId].board);
     if (result) {
       io.to(sessionId).emit("gameOver", result);
-      activeSessions[sessionId].currentMove = "";
-      activeSessions[sessionId].gameStatus = "finished";
+      activeSessions[game][sessionId].currentMove = "";
+      activeSessions[game][sessionId].gameStatus = "finished";
       io.to(sessionId).emit(
         "currentMove",
-        activeSessions[sessionId].currentMove
+        activeSessions[game][sessionId].currentMove
       );
     }
   });
 
-  socket.on("playAgain", ({ sessionId }) => {
-    const playAgain = activeSessions[sessionId].playAgain;
+  socket.on("playAgain", ({ sessionId, game }) => {
+    const playAgain = activeSessions[game][sessionId].playAgain;
     playAgain.push("true");
     if (playAgain.length == 2) {
-      activeSessions[sessionId] = {
+      activeSessions[game][sessionId] = {
         board: Array(9).fill(""),
         currentMove: "",
         gameStatus: "created",
         playAgain: [],
       };
-      io.to(sessionId).emit("updateBoard", activeSessions[sessionId].board);
+      io.to(sessionId).emit(
+        "updateBoard",
+        activeSessions[game][sessionId].board
+      );
       io.to(sessionId).emit(
         "currentMove",
-        (activeSessions[sessionId].currentMove = Math.floor(Math.random() * 2)
+        (activeSessions[game][sessionId].currentMove = Math.floor(
+          Math.random() * 2
+        )
           ? "X"
           : "O")
       );
@@ -117,6 +144,7 @@ io.on("connection", (socket) => {
       socket.emit("waiting", true);
     }
   });
+
   socket.on("disconnect", () => {
     console.log("A user disconnected");
   });

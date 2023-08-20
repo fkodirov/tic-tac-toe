@@ -14,7 +14,7 @@ const SessionCreation: React.FC = observer(() => {
   }, [Store.socket]);
   const handleCreateSession = () => {
     if (sessionIdRef.current && sessionIdRef.current.value.trim() !== "") {
-      Store.socket?.emit("create", sessionIdRef.current.value);
+      Store.socket?.emit("create", sessionIdRef.current.value, Store.game);
     }
   };
 

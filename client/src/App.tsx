@@ -7,6 +7,7 @@ import TicTacToeGame from "./components/TicTacToeGame";
 import Main from "./components/Main";
 import GameSelection from "./components/GameSelection";
 import Store from "./store/store";
+import Battleship from "./components/Battleship";
 
 const App: React.FC = observer(() => {
   useEffect(() => {
@@ -23,13 +24,22 @@ const App: React.FC = observer(() => {
         <Main />
       ) : !Store.game ? (
         <GameSelection />
+      ) : Store.game == "TicTacToe" ? (
+        !Store.sessionId ? (
+          <>
+            <SessionCreation />
+            <SessionJoin />
+          </>
+        ) : (
+          <TicTacToeGame />
+        )
       ) : !Store.sessionId ? (
         <>
           <SessionCreation />
           <SessionJoin />
         </>
       ) : (
-        <TicTacToeGame />
+        <Battleship />
       )}
     </div>
   );
