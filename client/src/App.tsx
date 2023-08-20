@@ -4,6 +4,8 @@ import { observer } from "mobx-react-lite";
 import SessionCreation from "./components/SessionCreation";
 import SessionJoin from "./components/SessionJoin";
 import TicTacToeGame from "./components/TicTacToeGame";
+import Main from "./components/Main";
+import GameSelection from "./components/GameSelection";
 import Store from "./store/store";
 
 const App: React.FC = observer(() => {
@@ -17,8 +19,11 @@ const App: React.FC = observer(() => {
   }, []);
   return (
     <div className="App">
-      <h1>Tic Tac Toe</h1>
-      {!Store.sessionId ? (
+      {!Store.playerName ? (
+        <Main />
+      ) : !Store.game ? (
+        <GameSelection />
+      ) : !Store.sessionId ? (
         <>
           <SessionCreation />
           <SessionJoin />

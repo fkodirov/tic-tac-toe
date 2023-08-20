@@ -2,6 +2,8 @@ import { makeObservable, observable, action } from "mobx";
 import { Socket } from "socket.io-client";
 
 class GameStore {
+  playerName: string = "";
+  game: string = "";
   waiting: boolean = false;
   gameStatus: string = "";
   socket: Socket | null = null;
@@ -13,6 +15,8 @@ class GameStore {
 
   constructor() {
     makeObservable(this, {
+      playerName: observable,
+      game: observable,
       waiting: observable,
       gameStatus: observable,
       socket: observable,
@@ -29,9 +33,16 @@ class GameStore {
       setSocket: action,
       setGameStatus: action,
       setWaiting: action,
+      setPlayerName: action,
     });
   }
 
+  setPlayerName(playerName: string) {
+    this.playerName = playerName;
+  }
+  setGame(game: string) {
+    this.game = game;
+  }
   setWaiting(waiting: boolean) {
     this.waiting = waiting;
   }

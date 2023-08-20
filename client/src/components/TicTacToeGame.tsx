@@ -55,7 +55,7 @@ const TicTacToeGame: React.FC = observer(() => {
   return (
     <div>
       <h2>
-        Session: {Store.sessionId} - Player {Store.player}
+        Session: {Store.sessionId} - {Store.playerName} ({Store.player})
       </h2>
       <button type="button" onClick={handlePlayAgain} disabled={Store.waiting}>
         {Store.waiting ? "Waiting" : "Play again"}
