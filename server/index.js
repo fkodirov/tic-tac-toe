@@ -91,7 +91,6 @@ io.on("connection", (socket) => {
         "currentMove",
         activeSessions[sessionId].currentMove
       );
-      // io.to(sessionId).emit("gameOver", activeSessions[sessionId].);
     }
   });
 
@@ -101,14 +100,16 @@ io.on("connection", (socket) => {
     if (playAgain.length == 2) {
       activeSessions[sessionId] = {
         board: Array(9).fill(""),
-        currentMove: "X",
+        currentMove: "",
         gameStatus: "created",
         playAgain: [],
       };
       io.to(sessionId).emit("updateBoard", activeSessions[sessionId].board);
       io.to(sessionId).emit(
         "currentMove",
-        (activeSessions[sessionId].currentMove = "X")
+        (activeSessions[sessionId].currentMove = Math.floor(Math.random() * 2)
+          ? "X"
+          : "O")
       );
       io.to(sessionId).emit("waiting", false);
       io.to(sessionId).emit("gameOver", "");
