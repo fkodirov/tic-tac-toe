@@ -31,11 +31,103 @@ const Battleship: React.FC = () => {
     }
   }, []);
 
+  const getHorizontalShip = () => {
+    const horizontalShips = [];
+    playerBoard.forEach((row, rowIndex) => {
+      let sequenceStart = null;
+      row.forEach((cell, cellIndex) => {
+        if (cell === "S") {
+          if (sequenceStart === null) {
+            sequenceStart = cellIndex;
+          }
+        } else {
+          if (sequenceStart !== null) {
+            horizontalShips.push([
+              rowIndex,
+              sequenceStart,
+              rowIndex,
+              cellIndex - 1,
+            ]);
+            sequenceStart = null;
+          }
+        }
+      });
+      if (sequenceStart !== null) {
+        horizontalShips.push([
+          rowIndex,
+          sequenceStart,
+          rowIndex,
+          row.length - 1,
+        ]);
+      }
+    });
+
+    const getHorizontalShips = horizontalShips.map((segment) => [
+      segment[1],
+      segment[3],
+    ]);
+    const filteredShip = getHorizontalShips.filter(
+      (segment) => segment[0] !== segment[1]
+    );
+    return filteredShip;
+  };
+
+  const getVerticalShip = () => {
+    const verticalShips = [];
+
+    for (let colIndex = 0; colIndex < playerBoard[0].length; colIndex++) {
+      let sequenceStart = null;
+      let sequenceEnd = null;
+
+      for (let rowIndex = 0; rowIndex < playerBoard.length; rowIndex++) {
+        const cell = playerBoard[rowIndex][colIndex];
+
+        if (cell === "S") {
+          if (sequenceStart === null) {
+            sequenceStart = rowIndex;
+          }
+          sequenceEnd = rowIndex;
+        } else if (sequenceStart !== null) {
+          verticalShips.push([sequenceStart, sequenceEnd]);
+          sequenceStart = null;
+          sequenceEnd = null;
+        }
+      }
+
+      if (sequenceStart !== null) {
+        verticalShips.push([sequenceStart, sequenceEnd]);
+      }
+    }
+    const filteredShipVertical = verticalShips.filter(
+      (segment) => segment[0] !== segment[1]
+    );
+    return filteredShipVertical;
+  };
+  const getSingleShip = () => {
+    const singleShip = [];
+    for (let i = 0; i < playerBoard.length; i++) {
+      for (let j = 0; j < playerBoard[i].length; j++) {
+        if (playerBoard[i][j] === "S") {
+          const hasLeft = j > 0 && playerBoard[i][j - 1] === "S";
+          const hasRight =
+            j < playerBoard[i].length - 1 && playerBoard[i][j + 1] === "S";
+          const hasAbove = i > 0 && playerBoard[i - 1][j] === "S";
+          const hasBelow =
+            i < playerBoard.length - 1 && playerBoard[i + 1][j] === "S";
+
+          if (!hasLeft && !hasRight && !hasAbove && !hasBelow) {
+            singleShip.push([i, j]);
+          }
+        }
+      }
+    }
+    return singleShip;
+  };
+
   const handleCellClick = (rowIndex: number, cellIndex: number) => {
     if (placingShip) {
       const newBoard = [...playerBoard];
       if (playerBoard[rowIndex][cellIndex] != "S") {
-        console.log("Da");
         newBoard[rowIndex][cellIndex] = "S";
         setPlayerBoard(newBoard);
       }
@@ -66,6 +158,9 @@ const Battleship: React.FC = () => {
             <p>Waiting for opponent...</p>
           )}
         </div>
+        <button onClick={getHorizontalShip}>Get Horizontal</button>
+        <button onClick={getVerticalShip}>Get Vertical</button>
+        <button onClick={getSingleShip}>Get Vertical</button>
         <button onClick={() => setPlacingShip(false)}>Start Game</button>
       </div>
     </>
